@@ -87,7 +87,8 @@
             var lastId;
             axios.get(url)
                 .then(function(response) {
-                    lastId = response.data[response.data.leght].id;
+                    var arr = response.data;
+                    lastId = arr[arr.length - 1].id;
                 })
                 .catch(function(error) {
                     // handle error
