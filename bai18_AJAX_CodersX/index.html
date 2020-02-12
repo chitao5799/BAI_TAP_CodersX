@@ -1,0 +1,184 @@
+<html>
+
+<head>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        table {
+            min-width: fit-content;
+            width: 50%;
+            max-width: 100%;
+            margin-top: 20px;
+        }
+        
+        table,
+        th,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+
+</head>
+
+<body>
+    <fieldset style="width: fit-content;">
+        <legend>Thêm người - Post Method</legend>
+        <input type="text" id="firstName" placeholder="first name" />
+        <input type="text" id="lastName" placeholder="last Name " />
+        <input type="text" id="address" placeholder="address" />
+        <button id="add_item">Add</button>
+    </fieldset>
+    <fieldset style="width: fit-content; margin-top: 15px;">
+        <legend>Cập nhật tất cả thông tin - Pust Method</legend>
+        <input type="text" id="id_1" placeholder="id of employees" />
+        <input type="text" id="firstName_1" placeholder="first name" />
+        <input type="text" id="lastName_1" placeholder="last Name " />
+        <input type="text" id="address_1" placeholder="address" />
+        <button id="Put_item">Put</button>
+    </fieldset>
+    <fieldset style="width: fit-content; margin-top: 15px;">
+        <legend>Cập nhật các thông tin được thay đổi - PATCH Method</legend>
+        <input type="text" id="id_2" placeholder="id of employees" />
+        <input type="text" id="firstName_2" placeholder="first name" />
+        <input type="text" id="lastName_2" placeholder="last Name " />
+        <input type="text" id="address_2" placeholder="address" />
+        <button id="PATCH_item">PATCH</button>
+    </fieldset>
+    <fieldset style="width: fit-content; margin-top: 15px;">
+        <legend>Xóa - DELETE Method</legend>
+        <input type="text" id="id_3" placeholder="id of employees" />
+        <button id="DELETE_item">DELETE</button>
+    </fieldset>
+    <table id="table">
+
+    </table>
+
+    <script>
+        var url = 'http://localhost:3000/employees';
+        var table = document.getElementById('table');
+
+        function show() {
+            var th = "<tr><th>id</th><th>Name</th><th>Address</th></tr>";
+            table.innerHTML = th;
+            axios.get(url)
+                .then(function(response) {
+                    // handle success
+                    response.data.forEach(element => {
+                        render(element);
+                    });
+                })
+                .catch(function(error) {
+                    // handle error
+                    console.log(error);
+                });
+        }
+        show();
+        //---------------------------------------
+        function render(obj) {
+            var tr = document.createElement('tr');
+            var row = '<td>' + obj.id + '</td><td>' + obj.first_name + ' ' + obj.last_name +
+                '</td><td>' + obj.address + '</td>';
+            tr.innerHTML = row;
+            table.appendChild(tr);
+        }
+        //---------------------------------------
+        var btn = document.getElementById('add_item');
+        btn.addEventListener('click', () => {
+            var lastId;
+            axios.get(url)
+                .then(function(response) {
+                    lastId = response.data[response.data.leght].id;
+                })
+                .catch(function(error) {
+                    // handle error
+                    console.log(error);
+                });
+
+            var idNew = parseInt(lastId + 1);
+            var obj = {
+                id: idNew,
+                first_name: document.getElementById('firstName').value,
+                last_name: document.getElementById('lastName').value,
+                address: document.getElementById('address').value
+            }
+
+            render(obj); //bị lỗi NaN ở id khi show lên trình duyệt, ko hiểu tại sao.
+
+            axios({
+                method: 'post',
+                url: url,
+                data: obj
+            });
+
+            document.getElementById('firstName').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('address').value = '';
+        });
+        //---------------------------------------
+        var putBtn = document.getElementById('Put_item');
+        putBtn.addEventListener('click', () => {
+            var id = document.getElementById('id_1').value;
+            var obj = {
+                id: id,
+                first_name: document.getElementById('firstName_1').value,
+                last_name: document.getElementById('lastName_1').value,
+                address: document.getElementById('address_1').value
+            }
+            axios({
+                method: 'put',
+                url: url + '/' + id,
+                data: obj
+            });
+            table.innerHTML = '';
+            show();
+            document.getElementById('id_1').value = '';
+            document.getElementById('firstName_1').value = '';
+            document.getElementById('lastName_1').value = '';
+            document.getElementById('address_1').value = '';
+        });
+        //---------------------------------------
+        var patchBtn = document.getElementById('PATCH_item');
+        patchBtn.addEventListener('click', () => {
+            var id = document.getElementById('id_2').value;
+            var obj = {
+                id: id
+            }
+            var firstName = document.getElementById('firstName_2').value;
+            if (firstName != '')
+                obj.first_name = firstName;
+            var lastName = document.getElementById('lastName_2').value;
+            if (lastName != '')
+                obj.last_name = lastName;
+            var address = document.getElementById('address_2').value;
+            if (address != '')
+                obj.address = address;
+
+            axios({
+                method: 'patch',
+                url: url + '/' + id,
+                data: obj
+            });
+            table.innerHTML = '';
+            show();
+            document.getElementById('id_2').value = '';
+            document.getElementById('firstName_2').value = '';
+            document.getElementById('lastName_2').value = '';
+            document.getElementById('address_2').value = '';
+        });
+        //---------------------------------------
+        var delhBtn = document.getElementById('DELETE_item');
+        delhBtn.addEventListener('click', () => {
+            var id = document.getElementById('id_3').value;
+
+            axios({
+                method: 'delete',
+                url: url + '/' + id,
+            });
+            table.innerHTML = '';
+            show();
+            document.getElementById('id_3').value = '';
+        });
+    </script>
+</body>
+
+</html>
